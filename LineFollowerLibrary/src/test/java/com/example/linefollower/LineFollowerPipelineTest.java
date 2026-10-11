@@ -115,17 +115,17 @@ public class LineFollowerPipelineTest {
         assertTrue(p.isColorModelReady());
 
         final int[] c = process(p, f, centred);
-        assertEquals("centred steering", 0, c[0], 3);
+        assertEquals("centred steering", 0, c[0], 2);
         assertTrue("straight road should give high tracking: " + c[1], c[1] > 90);
 
         final int[] right = process(p, f, straight(floorRgb, lineRgb, W / 2 + 60, 30));
-        assertEquals("right steering", 37, right[0], 4);
+        assertEquals("right steering", 19, right[0], 2);
 
         // Back through the centre: a 120 px jump in one frame is outside the
         // line-lock gate and is (correctly) treated as leaving the line.
         process(p, f, centred);
         final int[] left = process(p, f, straight(floorRgb, lineRgb, W / 2 - 60, 30));
-        assertEquals("left steering", -37, left[0], 4);
+        assertEquals("left steering", -19, left[0], 2);
     }
 
     private static int rgb(int r, int g, int b) { return (r << 16) | (g << 8) | b; }
@@ -245,7 +245,7 @@ public class LineFollowerPipelineTest {
         final byte[] g = toGray(straight(BLACK, WHITE, W / 2, 30));
         assertTrue("no colour phase — finishes after calibFrames", calibrateN(p, g, cfg.calibFrames));
         assertFalse(p.isColorModelReady());
-        assertEquals(37, p.processFrame(toGray(straight(BLACK, WHITE, W / 2 + 60, 30)), W, H)[0], 4);
+        assertEquals(19, p.processFrame(toGray(straight(BLACK, WHITE, W / 2 + 60, 30)), W, H)[0], 2);
     }
 
     private static boolean calibrateN(LineFollowerPipeline p, byte[] g, int n) {
@@ -261,7 +261,7 @@ public class LineFollowerPipelineTest {
         final int[] img = straight(BROWN, WHITE, W / 2, 30);
         while (!p.calibrateArgb(img, W, H)) { /* calibrating */ }
         final int[] dim = scene(BROWN, WHITE, r -> W / 2 + 60, 30, 4, 0.6, 99);
-        assertEquals(37, p.processFrameArgb(dim, W, H)[0], 4);
+        assertEquals(19, p.processFrameArgb(dim, W, H)[0], 2);
     }
 
     @Test public void hardTurnKeepsTrackFound() {
@@ -303,7 +303,7 @@ public class LineFollowerPipelineTest {
         while (!p.calibrateArgb(img, W, H)) { /* calibrating */ }
         p.processFrameArgb(img, W, H);
         final int[] out = p.processFrameArgb(scene(BLACK, BLACK, r -> 0, 1, 4, 1.0, 3), W, H);
-        assertEquals(2, out[1]);
+        assertEquals(5, out[1]);
     }
 
     @Test(expected = IllegalArgumentException.class)

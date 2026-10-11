@@ -45,8 +45,8 @@ public class TrackSimTest {
     private static void assertSteers(int floor, int line, Consumer<TrackSim> cond) {
         final int[] s = calibrateAndSteer(floor, line, cond);
         assertEquals("centred", 0, s[0], 2);
-        assertEquals("2 cm right", 15, s[1], 3);
-        assertEquals("2 cm left", -15, s[2], 3);
+        assertEquals("2 cm right", 8, s[1], 2);
+        assertEquals("2 cm left", -8, s[2], 2);
     }
 
     @Test public void darkLinesWithShadowBesideTheLine() {
@@ -138,7 +138,7 @@ public class TrackSimTest {
     @Test public void lostLineReadsExactlyFullSteering() {
         boolean sawLost = false;
         for (int[] f : drive(0.12, 90, 0.04, true, 0)) {
-            if (f[1] == 0) { assertEquals(100, Math.abs(f[0])); sawLost = true; }
+            if (f[1] == 0) { assertEquals(50, Math.abs(f[0])); sawLost = true; }
         }
         assertTrue("scenario should lose the line", sawLost);
     }
@@ -163,12 +163,12 @@ public class TrackSimTest {
         for (Consumer<TrackSim> cond : List.of(PLAIN, GRAIN_VIGNETTE)) {
             final List<Integer> t = trackingToDeadEnd(cond);
             assertEquals("full speed while the road ahead is long", 100, (int) t.get(0));
-            assertEquals("minimum at the end", 2, (int) t.get(t.size() - 1));
+            assertEquals("minimum at the end", 5, (int) t.get(t.size() - 1));
             int ramp = 0;
             for (int i = 1; i < t.size(); i++) {
                 assertTrue("never rises approaching the end: " + t, t.get(i) <= t.get(i - 1) + 2);
-                assertTrue("no sudden drop (was 100 → 2 in one frame): " + t, t.get(i - 1) - t.get(i) <= 20);
-                if (t.get(i) < 98 && t.get(i) > 2) ramp++;
+                assertTrue("no sudden drop (was 100 → 5 in one frame): " + t, t.get(i - 1) - t.get(i) <= 20);
+                if (t.get(i) < 98 && t.get(i) > 5) ramp++;
             }
             assertTrue("gradual ramp over several frames: " + t, ramp >= 6);
         }

@@ -55,7 +55,7 @@ import java.util.concurrent.Executors;
  *
  * All display data comes from the library's FrameCallback:
  *   Overlay — ⊥ sensor, look-ahead band, calibrated reference (OverlayView)
- *   STEER   — SeekBar + number [-100…+100]
+ *   STEER   — SeekBar + number [-50…+50]
  *   TRACK   — ProgressBar + percentage [min…100%]
  *   Status  — calibration progress / TRACKING (green) / TRACK LOST (orange)
  *   Colours — learned line + floor swatches, threshold, colour separation
@@ -531,8 +531,8 @@ public class MainActivity extends AppCompatActivity {
         final float   t     = hudIntersection;
         final boolean found = hudTrackFound;
 
-        // Steering SeekBar: range [0, 200], centre = 100
-        seekSteering.setProgress((int)(100f + s), false);
+        // Steering SeekBar: range [0, 100], centre = 50
+        seekSteering.setProgress((int)(50f + s), false);
         tvSteering.setText(String.format(Locale.US, "%+.0f", s));
 
         // Track ProgressBar: range [0, 100]
@@ -542,8 +542,8 @@ public class MainActivity extends AppCompatActivity {
         // Colour code by how centred / how much track is ahead
         final int steerColor;
         if (!found)             steerColor = Color.parseColor("#FF6D00"); // orange: lost
-        else if (Math.abs(s) < 20f) steerColor = Color.parseColor("#00E676"); // green: on track
-        else if (Math.abs(s) < 50f) steerColor = Color.parseColor("#FFD600"); // yellow: small correction
+        else if (Math.abs(s) < 10f) steerColor = Color.parseColor("#00E676"); // green: on track
+        else if (Math.abs(s) < 25f) steerColor = Color.parseColor("#FFD600"); // yellow: small correction
         else                    steerColor = Color.parseColor("#FF1744"); // red: large correction
 
         tvSteering.setTextColor(steerColor);

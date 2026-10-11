@@ -82,8 +82,8 @@ Each format has a matching calibrate / process pair. Use the **same format** for
 
 | Index | Name | Range | Meaning |
 |---|---|---|---|
-| `result[0]` | **Steering** | `-100 … +100` | `0` = line is centred. Negative = line is to the left, turn left. Positive = line is to the right, turn right. |
-| `result[1]` | **Tracking** | `2 … 100` | `100` = straight path ahead, full speed. Drops as a turn or curve is detected, and ramps down linearly as the visible road ahead gets shorter (dead end, sharp corner). Never falls below `Config.trackingMinValue` (default **2**), so the robot is never sent a full stop. Set that field to `0` for the full 0–100 range. |
+| `result[0]` | **Steering** | `-50 … +50` | `0` = line is centred. Negative = line is to the left, turn left. Positive = line is to the right, turn right. |
+| `result[1]` | **Tracking** | `5 … 100` | `100` = straight path ahead, full speed. Drops as a turn or curve is detected, and ramps down linearly as the visible road ahead gets shorter (dead end, sharp corner). Never falls below `Config.trackingMinValue` (default **5**), so the robot is never sent a full stop. Set that field to `0` for the full 0–100 range. |
 
 **Typical robot wiring:**
 
@@ -160,20 +160,20 @@ When searching for the line (start-up, or after it was lost), the pipeline no lo
 | `trackOffsetFullFrac` | `float` | `1.0f` | How far the look-ahead line must lean (as a fraction of half-frame width) to push Tracking to its minimum. Lower (e.g. `0.6`) makes turns read earlier. |
 | `trackLengthSlowdown` | `boolean` | `true` | Also limit Tracking by how much road is still visible ahead (floor distance, perspective-corrected). Approaching a dead end or a sharp corner, Tracking ramps down **linearly with the remaining road** instead of dropping from 100 to the minimum in one frame. A fully visible straight road still reads 100. |
 | `trackLengthFullFrac` | `float` | `0.8f` | Fraction of the look-ahead distance the line must reach for the road-length part to read 100. Keeps the dim far edge from lowering Tracking on straight roads. |
-| `trackingMinValue` | `int` | `2` | Floor for the Tracking output. `result[1]` will never go below this value, so the robot never receives a full stop signal. Set to `0` to allow the full 0–100 range. |
+| `trackingMinValue` | `int` | `5` | Floor for the Tracking output. `result[1]` will never go below this value, so the robot never receives a full stop signal. Set to `0` to allow the full 0–100 range. |
 
 ### Tracking Minimum Value
 
-By default the Tracking output **never reaches zero**. `result[1]` is clamped to a floor of **2**, so the robot always receives at least a small speed signal. This prevents mechanical problems caused by a complete stop command.
+By default the Tracking output **never reaches zero**. `result[1]` is clamped to a floor of **5**, so the robot always receives at least a small speed signal. This prevents mechanical problems caused by a complete stop command.
 
 | Value | Effect |
 |---|---|
-| `2` *(default)* | Tracking minimum is 2 — the robot always gets at least a tiny speed signal. |
-| `3` | Raise the floor further. |
+| `5` *(default)* | Tracking minimum is 5 — the robot always gets at least a small speed signal. |
+| `10` | Raise the floor further. |
 | `0` | Disable the floor — allow the full 0–100 range. |
 
 ```java
-cfg.trackingMinValue = 2;   // set before calling pipeline.configure(cfg)
+cfg.trackingMinValue = 5;   // set before calling pipeline.configure(cfg)
 ```
 
 ### Calibration Frames
@@ -312,7 +312,7 @@ pipeline.setFrameCallback(null);
 | `lineColorArgb`, `floorColorArgb` | `int` | Learned colours (`0xAARRGGBB`) — handy for UI swatches. |
 | `colorSeparation` | `float` | How well the two colours separate, in noise standard deviations. |
 | `threshold` | `int` | Threshold used in the scan strip this frame; `-1` = no contrast (no line). |
-| `steering` | `int` | Steering value, `-100 … +100` — same as `result[0]`. |
+| `steering` | `int` | Steering value, `-50 … +50` — same as `result[0]`. |
 | `tracking` | `int` | Tracking value, `min … 100` — same as `result[1]`. |
 
 ### Drawing the overlay
@@ -409,7 +409,7 @@ cfg.autoColor        = true;    // learn line + floor colours (any two colours)
 cfg.cameraTiltDeg    = 45f;     // phone mount angle
 cfg.bottomIgnoreFrac = 0.20f;   // hide robot body from scan
 cfg.trackMemory      = true;    // lock onto line, ignore reflections
-cfg.trackingMinValue = 2;       // never send a full stop
+cfg.trackingMinValue = 5;       // never send a full stop
 pipeline.configure(cfg);
 
 // Register overlay callback — fires automatically on every frame
@@ -449,9 +449,9 @@ while (running) {
 | Straight line, centred | `~0` | `~100` |
 | Line drifting to one side | `± small` | `high` |
 | Curve approaching (line leaning) | `varies` | `dropping toward the floor` |
-| Approaching a dead end / sharp corner | `~0` | `ramps 100 → 2 with the remaining road` |
-| Hard turn | `±100` | `2–30` |
-| Line completely lost | `±100` | `2` *(the floor)* |
+| Approaching a dead end / sharp corner | `~0` | `ramps 100 → 5 with the remaining road` |
+| Hard turn | `±50` | `5–30` |
+| Line completely lost | `±50` | `5` *(the floor)* |
 
 ---
 

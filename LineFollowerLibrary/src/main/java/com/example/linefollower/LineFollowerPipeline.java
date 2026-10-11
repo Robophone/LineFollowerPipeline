@@ -8,7 +8,7 @@ package com.example.linefollower;
  *   LineFollowerPipeline pipeline = new LineFollowerPipeline();
  *   while (!pipeline.calibrateYuv420(y, u, v, width, height)) { ...next frame... }
  *   int[] result = pipeline.processFrameYuv420(y, u, v, width, height);
- *   // result[0] = Steering  [-100 … +100]  (negative = line left, positive = line right)
+ *   // result[0] = Steering  [-50 … +50]    (negative = line left, positive = line right)
  *   // result[1] = Tracking  [ min … 100  ]  (100 = straight path ahead, min = hard turn / line lost)
  *
  * Three input formats are accepted (each has a calibrate… and processFrame… method):
@@ -208,10 +208,10 @@ public final class LineFollowerPipeline {
         // the look-ahead never pulls tracking down on a straight road.
         public float trackLengthFullFrac = 0.8f;
 
-        // Minimum value the Tracking output is allowed to reach (default 2).
+        // Minimum value the Tracking output is allowed to reach (default 5).
         // Prevents the robot from receiving a full-stop signal, which can cause
         // mechanical bugs. Set to 0 to allow the full 0-100 range.
-        public int trackingMinValue = 2;
+        public int trackingMinValue = 5;
 
         // ── Auto-calibration (camera mounting offset) ───────────────────────
         // The phone camera is not on the robot's centre line, so when the robot is
@@ -334,7 +334,7 @@ public final class LineFollowerPipeline {
         public float colorSeparation;
         /** Threshold used in the H-ROI this frame (on the line-ness / grey image, 0–255); -1 = no contrast, no line. */
         public int threshold;
-        /** Steering value [-100 … +100]; negative = line left, positive = line right. */
+        /** Steering value [-50 … +50]; negative = line left, positive = line right. */
         public int steering;
         /** Tracking value [min … 100]; 100 = straight road ahead, low = turn / line lost. */
         public int tracking;
@@ -600,7 +600,7 @@ public final class LineFollowerPipeline {
      * @param width   frame width  in pixels
      * @param height  frame height in pixels
      * @return int[2] (same array instance reused each call — copy if you need to keep values):
-     *         [0] = Steering  [-100 … +100]  negative = line is left, positive = line is right
+     *         [0] = Steering  [-50 … +50]    negative = line is left, positive = line is right
      *         [1] = Tracking  [ min … 100  ]  100 = straight path ahead, min = hard turn / line lost
      */
     public int[] processFrame(byte[] gray, int width, int height) {
@@ -932,7 +932,8 @@ public final class LineFollowerPipeline {
         updateFps();
         final byte[] pix = prepareWorkImage(vRoiTop, hRoiBot);
         runPipeline(pix, imgW, imgH, workBright);
-        result[0] = Math.round(output.steering);
+        // Internal steering is [-100 … +100]; the output is scaled to [-50 … +50].
+        result[0] = Math.round(output.steering * 0.5f);
         // Invert the internal intersection scale:
         //   internal 0   (straight) → output 100 (no braking needed)
         //   internal 100 (hard turn / lost) → output min (brake / slow down)

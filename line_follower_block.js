@@ -52,7 +52,7 @@ Blockly.defineBlocksWithJsonArray([
     "output": "Number",
 
     "colour": "#CA8A4D",   // tan — matches the built-in sensor blocks
-    "tooltip": "Reads one camera frame and reports a line-following value. Steer: -100 to +100 (0 = centred). Power: 0 to 100 (100 = straight ahead, drops before turns, 0 = line lost).",
+    "tooltip": "Reads one camera frame and reports a line-following value. Steer: -50 to +50 (0 = centred). Power: 0 to 100 (100 = straight ahead, drops before turns, 0 = line lost).",
     "helpUrl": "https://github.com/YOUR_USERNAME/YOUR_REPO"
   }
 ]);
@@ -157,7 +157,7 @@ Blockly.JavaScript.forBlock['line_follower_read'] = function (block, generator) 
       private static void ensureProcessed() {
           if (processedThisFrame) return;
           int[] r = pipeline.processFrame(frame, camera.getWidth(), camera.getHeight());
-          steer = r[0];   // -100 ... +100
+          steer = r[0];   //  -50 ... +50
           power = r[1];   //    0 ... 100
           processedThisFrame = true;
       }

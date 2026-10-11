@@ -81,7 +81,7 @@
        robot.moveSteering(LineFollowerHelper.getSteer(),
                           LineFollowerHelper.getPower());
 
-   Steer  : -100 ... +100   (0 = centred)
+   Steer  :  -50 ... +50    (0 = centred)
    Power  :    0 ... 100    (100 = straight, drops before turns, 0 = line lost)
 
 

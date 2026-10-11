@@ -289,8 +289,8 @@ public final class OverlayView extends View {
         if (s.centroidXFrac >= 0f) {
             cx = mx(s.centroidXFrac);                  // real detected position
         } else {
-            // Lost: point at the edge the line left (steering is pinned to ±100).
-            cx = mx(clamp01(s.steerRefXFrac + s.steering / 200f));
+            // Lost: point at the edge the line left (steering is pinned to ±50).
+            cx = mx(clamp01(s.steerRefXFrac + s.steering / 100f));
         }
         if (dynamic) {
             centerPath.rewind();
